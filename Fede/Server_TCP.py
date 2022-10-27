@@ -1,21 +1,39 @@
 from socket import *
 
 connectionSocket = 0
-
+windowsFlag = 0 # 0 per unix 1 per windows
 
 def main():
     connectionSocket = StartConnection()
 
-    while True:
+    while True: #funzione per menu
         x = MenuOperativo()
         InviaSelezioneMenu(x, connectionSocket)
         if x == "0":
             break
+        RiceviDaClient(x, connectionSocket)
 
+    print("questo è il flag di windows " + windowsFlag.__str__())
     StopConnection(connectionSocket)
 
 
-def MenuOperativo():
+def SalvaSuFile(str):
+    f = open("dati.txt", "a")
+    f.write(str)
+
+def RiceviDaClient(x, connectionSocket):
+    if x == "1":
+        d = connectionSocket.recv(1024).decode()
+        SalvaSuFile(d)
+
+        if d.find("Windows") != -1:
+            global windowsFlag
+            windowsFlag = 1
+            print("si") #problemi con i flag
+
+
+
+def MenuOperativo(): #funzione per menu
 
     # aggiungere controlli nel caso
     while True:
@@ -38,7 +56,7 @@ def MenuOperativo():
     return x
 
 
-def InviaSelezioneMenu(x, connectionSocket):
+def InviaSelezioneMenu(x, connectionSocket): #funzione per menu
     connectionSocket.send(x.encode())
     print(connectionSocket.recv(4).decode())
 

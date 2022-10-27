@@ -10,13 +10,14 @@ def main():
 
     StopConnection(clientSocket)
 
-def RiceviMenu(clientSocket):
 
+def RiceviMenu(clientSocket):
     while True:
         x = clientSocket.recv(2).decode()
         clientSocket.send("k".encode())
         if x == "1":
             print("ricevere info Sistema Operativo")
+            sendOsInfo(clientSocket)
         if x == "2":
             print("gestire la shell")
         if x == "3":
@@ -24,7 +25,7 @@ def RiceviMenu(clientSocket):
         if x == "4":
             print("scaricare un file")
         if x == "0":
-            break #chiudi la connessione
+            break  # chiudi la connessione
 
 
 def sendOsInfo(clientSocket):
