@@ -50,6 +50,7 @@ def MenuOperativo(): #funzione per menu (completa)
     # aggiungere controlli nel caso
     while True:
         x = 0
+        print("ci troviamo su " + ("Windows" if windowsFlag else "Unix"))
         print('cosa vuoi fare?')
         print('inserisci 1 per ricevere info Sistema Operativo')
         print('inserisci 2 per gestire la shell')
@@ -61,11 +62,9 @@ def MenuOperativo(): #funzione per menu (completa)
         if x == "0":
             return "0"
         elif x == "1" or x == "2" or x == "3" or x == "4":
-            return x;
+            return x
         else:
             x = 0
-
-    return x
 
 
 def InviaSelezioneMenu(x, connectionSocket): #funzione per menu (completa)
