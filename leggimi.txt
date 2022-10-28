@@ -1,2 +1,24 @@
 1. Da modificare il numero di byte inviati dagli interi
 2. Versione con librerie windows importate
+
+client: botnet 
+server: bot master 
+1 - Il botnet richide periodicamente la connessione
+2 - Stabilita la connessione il botnet invia le info di base della macchina e del sistema operativo (e altro)
+3 - In automatico il botnet decide se mandare comandi in Windows o Linux
+	3.1 - recovery in caso di mancata stringa, richiesta di inserimento stringa manualmente ("w" - Windows, "u" - Unix))
+4 - Il botnet apre la shell e il botmaster può inviare comandi
+	4.1 - cd
+	4.2 - ls / dir
+	4.3 - get <bell stu file>
+	4.4 - ricerca di file dalla working directory
+	4.5 - ricerca di file per data
+	4.6 - exit
+
+risolvere problema invio file relativamente gradi
+ripistino in caso di crash o errori
+se comando inesistente riporta l errore e continua
+
+ERRORI:
+server non aperto
+comando inviato inesistente
