@@ -4,16 +4,21 @@ from socket import *
 windowsFlag = 0 # 0 per unix 1 per windows
 
 def main():
-    connectionSocket = StartConnection() #apriamo connessione e inizializziamo
+    while True:
+        try:
+            connectionSocket = StartConnection() #apriamo connessione e inizializziamo
 
-    while True: #funzione per menu loop fin quando non si inserisce zero
-        x = MenuOperativo()
-        InviaSelezioneMenu(x, connectionSocket)
-        if x == "0":
-            break
-        RiceviDaClient(x, connectionSocket) #funzione per ricevere da client
+            while True: #funzione per menu loop fin quando non si inserisce zero
+                x = MenuOperativo()
+                InviaSelezioneMenu(x, connectionSocket)
+                if x == "0":
+                    break
+                RiceviDaClient(x, connectionSocket) #funzione per ricevere da client
 
-    StopConnection(connectionSocket) #chiude la connessione e termina
+            StopConnection(connectionSocket) #chiude la connessione e termina
+        except:
+            print("errore Riavvio in corso")
+            connectionSocket.close()
 
 
 def SalvaSuFile(str): #da usare da tutti per salvare i dati?

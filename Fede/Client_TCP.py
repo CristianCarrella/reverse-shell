@@ -4,14 +4,18 @@ import time
 
 
 def main():
-    clientSocket = StartConnection()  # apre connessione
-    # da aggiungere loop e controlli
+    while True:
+        try:
+            clientSocket = StartConnection()  # apre connessione
 
-    RiceviMenu(clientSocket)  # aspetta la ricezione del da farsi
-    # va in loop e non esce fin quando non si inserisce zero
+            RiceviMenu(clientSocket)  # aspetta la ricezione del da farsi
+            # va in loop e non esce fin quando non si inserisce zero
 
-    StopConnection(clientSocket)  # chiude la connessione e termina
-
+            StopConnection(clientSocket)  # chiude la connessione e termina
+            break
+        except:
+            print("errore Riavvio in corso")
+            clientSocket.close()
 
 def RiceviMenu(clientSocket):  # riceve il menù e fa partire i vari metodi
     while True:
@@ -62,6 +66,7 @@ def StartConnection():  # apre la connessione con il server
         time.sleep(5)
 
     return clientSocket
+
 
 
 def StopConnection(clientSocket):  # chiude la connessione con il server

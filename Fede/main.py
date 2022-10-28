@@ -19,8 +19,48 @@ print("\nProcessor: ", platform.processor())
 
 
 #psutil.virtual_memory().total  # total physical memory in Bytes
+'''x="c:\home\dir\ciao.txt"
+k = x.split("\\")
+x = k[1]
+
+for n in k:
+    x = n
+print(x)'''
+def main():
+    br = input()
+    print(br)
+    downloadFile(br)
 
 
+#deprecata
+import os
+def ricercaFile(stri, clientSocket):
+    rett = ""
+    for cartella, sottocartella, files in os.walk(os.getcwd()):
+        for file in files:
+            if file.find(stri):
+                #print(cartella + "\\" + file)
+                rett = rett + cartella + "\\" + file + "\n"
+
+    clientSocket.send(rett.encode())
+def downloadFile(stri: str):
+
+    local = os.walk(os.getcwd())
+    pathar = stri.split("\\")
+    gufo = ""
+    for pat in pathar:
+        print("pat = " + pat)
+        for cartella in local:
+            print("cartella = " + cartella[0])
+            if cartella[0]==pat:
+                local=cartella
+                gufo = local[5]
+                print(gufo)
+                break
+    print(gufo)
+
+if __name__ == '__main__':
+    main()
 """
 
 import os
