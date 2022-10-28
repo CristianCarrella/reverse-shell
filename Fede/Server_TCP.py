@@ -19,6 +19,7 @@ def main():
         except:
             print("errore Riavvio in corso")
             connectionSocket.close()
+            break
 
 
 def SalvaSuFile(str): #da usare da tutti per salvare i dati?
