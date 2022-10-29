@@ -1,4 +1,7 @@
 # Funzione di ricerca di un file dalla working directory LATO CLIENT
+import subprocess
+
+
 def searchCmd(clientSocket):
     mex = "Client pronto a ricevere la stringa"
     clientSocket.send(mex.encode())
@@ -12,3 +15,8 @@ def searchCmd(clientSocket):
     clientSocket.send(pSize.encode())
     print(clientSocket.recv(1024).decode())
     clientSocket.send(output.encode())
+
+    #Aggiungere controllo se inserisco stringa vuota o no?(restituisce tutto)#
+    #
+    #
+    #

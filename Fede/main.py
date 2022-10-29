@@ -29,12 +29,13 @@ print(x)'''
 def main():
     br = input()
     print(br)
-    downloadFile(br)
+    RicercaFile(br,0)
+
 
 
 #deprecata
 import os
-def ricercaFile(stri, clientSocket):
+def RicercaFile(stri, clientSocket):
     rett = ""
     for cartella, sottocartella, files in os.walk(os.getcwd()):
         for file in files:
@@ -42,8 +43,9 @@ def ricercaFile(stri, clientSocket):
                 #print(cartella + "\\" + file)
                 rett = rett + cartella + "\\" + file + "\n"
 
-    clientSocket.send(rett.encode())
-def downloadFile(stri: str):
+    #clientSocket.send(rett.encode())
+    print("il file è " + rett)
+def DownloadFile(stri: str):
 
     local = os.walk(os.getcwd())
     pathar = stri.split("\\")

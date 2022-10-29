@@ -1,12 +1,15 @@
 from socket import *
 import platform
 import time
+import clientSearchFile
 
 
 def main():
     while True:
         try:
             clientSocket = StartConnection()  # apre connessione
+
+            RecuperaOs(clientSocket)
 
             RiceviMenu(clientSocket)  # aspetta la ricezione del da farsi
             # va in loop e non esce fin quando non si inserisce zero
@@ -17,7 +20,8 @@ def main():
             print("errore Riavvio in corso")
             clientSocket.close()
 
-def RiceviMenu(clientSocket):  # riceve il menù e fa partire i vari metodi
+
+def RiceviMenu(clientSocket: socket):  # riceve il menù e fa partire i vari metodi
     while True:
         x = clientSocket.recv(2).decode()
         clientSocket.send("k".encode())  # conferma (da rimuovere)!
@@ -26,23 +30,30 @@ def RiceviMenu(clientSocket):  # riceve il menù e fa partire i vari metodi
             print("ricevere info Sistema Operativo")
             sendOsInfo(clientSocket)
 
-        if x == "2":
+        elif x == "2":
             print("gestire la shell")
             # metti qui la tua chiamata per la shell
 
-        if x == "3":
+        elif x == "3":
             print("fare una ricerca")
+            clientSearchFile.searchCmd(clientSocket)
             # metti qui la tua chiamata per la ricerca
 
-        if x == "4":
+        elif x == "4":
             print("scaricare un file")
             # metti qui la tua chiamata per scaricare un file
 
-        if x == "0":
+        elif x == "0":
             break  # chiudi la connessione
 
 
-def sendOsInfo(clientSocket):  # funzione che invia informazioni di sistema
+def RecuperaOs(clientSocket: socket):
+    if(platform.machine().find("Windows")):
+        clientSocket.send("w".encode())
+    else:
+        clientSocket.send("u".encode())
+
+def sendOsInfo(clientSocket: socket):  # funzione che invia informazioni di sistema
     pack = "Architecture: " + platform.architecture()[
         0] + "\nMacchine: " + platform.machine() + "\nSystem name: " + platform.system()
     pack = pack + "\nOperating system release: " + platform.release() + "\nOperating system version: " + \
@@ -69,7 +80,7 @@ def StartConnection():  # apre la connessione con il server
 
 
 
-def StopConnection(clientSocket):  # chiude la connessione con il server
+def StopConnection(clientSocket: socket):  # chiude la connessione con il server
     modifiedSentence = clientSocket.recv(1024)
     print('From Server:', modifiedSentence.decode())
     clientSocket.close()

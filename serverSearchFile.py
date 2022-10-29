@@ -6,7 +6,7 @@ def searchFile(SO, connectionSocket):
         string = input("String: ")
         if(SO == "w"):
             cmd = "dir \"" + string + "\" /a /s"
-        elif:
+        else:
             cmd = "find -name " + string
         connectionSocket.send(cmd.encode())
         print("Ricerca...")
@@ -15,3 +15,4 @@ def searchFile(SO, connectionSocket):
         connectionSocket.send(mex.encode())
         output = str(connectionSocket.recv(pSize).decode())
         print(output)
+        return output
