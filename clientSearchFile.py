@@ -16,6 +16,7 @@ def searchCmd(clientSocket):
     print(clientSocket.recv(1024).decode())
     clientSocket.send(output.encode())
 
+    return output
     #Aggiungere controllo se inserisco stringa vuota o no?(restituisce tutto)#
     #
     #

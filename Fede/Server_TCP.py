@@ -23,6 +23,8 @@ def main():
             print("errore Riavvio in corso")
             connectionSocket.close()
 
+
+
 def AssegnaWinFlag(connectionSocket: socket):
     global windowsFlag
     windowsFlag = connectionSocket.recv(2).decode()
@@ -52,11 +54,30 @@ def RiceviDaClient(x: int, connectionSocket: socket):  # funzione di ritorno dop
         print("fare una ricerca")
         serverSearchFile.searchFile(windowsFlag,connectionSocket)
 
-
     elif x == "4":
+
         print("scaricare un file")
+        fileName = input()
+        existFile = connectionSocket.recv(1024).decode()
+        if existFile == "ok":
+            getFile(connectionSocket, fileName)
+        else:
+            print("File not found")
         # inserisci funzione
 
+def getFile(connectionSocket, fileName):
+    fileSize = int(connectionSocket.recv(1024).decode())
+    file = open(fileName, 'wb')
+    while fileSize > 0:
+        if fileSize < 1024:
+            out = connectionSocket.recv(fileSize)
+        else:
+            out = connectionSocket.recv(1024)
+        fileSize = fileSize - 1024
+        file.write(out)
+        print("Ricevendo...")
+    print("Ricevuto")
+    file.close()
 
 def MenuOperativo():  # funzione per menu (completa)
 
