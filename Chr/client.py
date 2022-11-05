@@ -21,13 +21,12 @@ def changeDirectory(clientSocket, cmd):
     out = ""
     if cmd != "cd":
         cmd = cmd.replace("cd ", "")
-        try:
-            print(cmd)
-            os.chdir(cmd)
-            os.system("dir")
-            out = os.getcwd()
-        except:
-            out = "Path not found"
+    try:
+        os.chdir(cmd)
+        os.system("dir")
+        out = os.getcwd()
+    except:
+        out = "Path not found"
     clientSocket.send(out.encode())
 
 
