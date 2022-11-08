@@ -79,7 +79,10 @@ def AssegnaWinFlag(connectionSocket: socket):
 
 
 def LogOnFile(strPerFile: str):  # da usare da tutti per salvare i dati?
-    f = open("dati.txt", "a")  # forse dovremmo resettare il file a ogni avvio?
+    try:
+        f = open("dati.txt", "a")  # forse dovremmo resettare il file a ogni avvio?
+    except:
+        f = open("dati.txt", "w")
     f.write(strPerFile)
     f.close()
 
