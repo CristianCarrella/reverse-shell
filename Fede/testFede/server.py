@@ -27,6 +27,7 @@ def receiveDir(connectionSocket):
 def exitNClose(connectionSocket, cmd):
     connectionSocket.send(cmd.encode())
     out = connectionSocket.recv(1024).decode()
+    connectionSocket.close()
     return True
 
 
@@ -37,10 +38,12 @@ def changeDirectory(connectionSocket):
     print(out)
 
 
-def getFile(connectionSocket, fileName):
+def getFile(connectionSocket: socket, fileName):
     existFile = connectionSocket.recv(1024).decode()
+    connectionSocket.send("ok".encode())
     if existFile == "ok":
         fileSize = int(connectionSocket.recv(1024).decode())
+        connectionSocket.send("ok".encode())
         file = open(fileName, 'wb')
         while fileSize > 0:
             if fileSize < 1024:
@@ -58,7 +61,7 @@ def getFile(connectionSocket, fileName):
 
 def StartConnection():  # funzione di connessione (da controllare)
     print('opening the server \n')
-    serverPort = 12001
+    serverPort = 12014
     serverSocket = socket(AF_INET, SOCK_STREAM)
     serverSocket.bind(('', serverPort))
     serverSocket.listen(1)
@@ -89,6 +92,7 @@ def LogOnFile(strPerFile: str):  # da usare da tutti per salvare i dati?
 
 def searchFile(connectionSocket, fileName):
     global windowsFlag
+    print(windowsFlag)
     if windowsFlag == "w":
         cmd = "dir \"" + fileName + "\" /a /s"
         print(cmd)
@@ -146,6 +150,7 @@ def main():
 
                 elif cmd == "esc":
                     esc = exitNClose(connectionSocket, cmd)
+                    break
 
                 elif "cd" in cmd:
                     changeDirectory(connectionSocket)
