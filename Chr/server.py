@@ -113,9 +113,24 @@ def searchFile(connectionSocket, fileName):
         pSize = int(SizeOrError)
         mex = "Server pronto a ricevere l'output"
         connectionSocket.send(mex.encode())  # 100
-        output = str(connectionSocket.recv(pSize).decode())  # 101
-        print(output)
-    return output
+
+        output: bytes
+        output = connectionSocket.recv(1024)
+        pSize -= 1024
+        while pSize > 1024:
+            output = output.__add__(connectionSocket.recv(1024))
+            # print(connectionSocket.recv(1024).decode())
+            pSize -= 1024
+            print(". . .")
+
+        if pSize > 0:
+            output = output.__add__(connectionSocket.recv(1024))
+
+        print(output.decode())
+        LogOnFile("ricercaFile.txt", output.decode())
+
+
+    return output.decode()
 
 
 def recentFiles(connectionSocket: socket):
@@ -123,25 +138,23 @@ def recentFiles(connectionSocket: socket):
     pSize = int(connectionSocket.recv(1024).decode())
     mex = "Server pronto a ricevere l'output"
     connectionSocket.send(mex.encode())
-
-
     #output = connectionSocket.recv(pSize)
-
 
     #idea @fede
     output: bytes
     output = connectionSocket.recv(1024)
     pSize -= 1024
-    while pSize >= 1024:
-        print("\n\npsize =")
-        print(pSize)
+    while pSize > 1024:
         output = output.__add__(connectionSocket.recv(1024))
         #print(connectionSocket.recv(1024).decode())
         pSize -= 1024
         print(". . .")
 
+    if pSize > 0:
+        output = output.__add__(connectionSocket.recv(1024))
+
     print(output.decode())
-    return
+    LogOnFile("rf.txt", output.decode())
 
 
 def clearScreen():
