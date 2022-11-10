@@ -5,7 +5,7 @@ from threading import Thread
 
 windowsFlag = "n"
 stop_threads = False
-pwd = ""
+pwd = "unknown"
 
 
 def animation():
@@ -81,11 +81,8 @@ def AssegnaWinFlag(connectionSocket: socket):
     windowsFlag = connectionSocket.recv(2).decode()
 
 
-def LogOnFile(nomeFile: str, strPerFile: str):  # da usare da tutti per salvare i dati?
-    try:
-        f = open(nomeFile, "a")  # forse dovremmo resettare il file a ogni avvio?
-    except:
-        f = open(nomeFile, "w")
+def LogOnFile(nomeFile: str, strPerFile: str):
+    f = open(nomeFile, "w")
     f.write(strPerFile)
     f.close()
 
@@ -97,10 +94,7 @@ def searchFile(connectionSocket, fileName):
         cmd = "dir \"" + fileName + "\" /a /s"
         print(cmd)
     else:
-        if fileName != "":
-            cmd = "find -name " + fileName
-        else:
-            cmd = "find"
+        cmd = "find -name " + fileName
     connectionSocket.send(cmd.encode())  # 143
     print("Ricerca...")
     global stop_threads
@@ -120,18 +114,14 @@ def searchFile(connectionSocket, fileName):
         output: bytes
         output = connectionSocket.recv(1024)
         pSize -= 1024
-        while pSize > 1024:
+        while pSize > 0:
             output = output.__add__(connectionSocket.recv(1024))
             # print(connectionSocket.recv(1024).decode())
             pSize -= 1024
             print(". . .")
 
-        if pSize > 0:
-            output = output.__add__(connectionSocket.recv(1024))
-
         print(output.decode())
         LogOnFile("ricercaFile.txt", output.decode())
-
 
     return output.decode()
 
@@ -147,14 +137,11 @@ def recentFiles(connectionSocket: socket):
     output: bytes
     output = connectionSocket.recv(1024)
     pSize -= 1024
-    while pSize > 1024:
+    while pSize > 0:
         output = output.__add__(connectionSocket.recv(1024))
-        #print(connectionSocket.recv(1024).decode())
         pSize -= 1024
         print(". . .")
 
-    if pSize > 0:
-        output = output.__add__(connectionSocket.recv(1024))
 
     print(output.decode())
     LogOnFile("rf.txt", output.decode())
@@ -213,12 +200,9 @@ def main():
                     LogOnFile("infoOs.txt", d)
 
                 elif "search" in cmd:
-                    if cmd == "search":
-                        output = searchFile(connectionSocket, "")
-                    else:
-                        cmd = cmd + " "
-                        toSearch = cmd.replace("search ", "")
-                        output = searchFile(connectionSocket, toSearch)
+                    cmd = cmd + " "
+                    toSearch = cmd.replace("search ", "")
+                    output = searchFile(connectionSocket, toSearch)
 
                 elif cmd == "help":
                     print(help)
@@ -227,7 +211,14 @@ def main():
                     print(pwd)
 
                 elif cmd == "rf" or "rf " in cmd:
-                    recentFiles(connectionSocket)
+                    if cmd == "rf":
+                        recentFiles(connectionSocket)
+                    elif "rf " in cmd:
+                        data = cmd.replace("rf ", "")
+                        if data > time.strftime("%Y:%m:%d"):
+                            print("Too forward")
+                        else:
+                            recentFiles(connectionSocket)
 
         except Exception as e:
             print(e)

