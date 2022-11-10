@@ -94,7 +94,10 @@ def searchFile(connectionSocket, fileName):
         cmd = "dir \"" + fileName + "\" /a /s"
         print(cmd)
     else:
-        cmd = "find -name " + fileName
+        if fileName != "":
+            cmd = "find -name " + fileName
+        else:
+            cmd = "find"
     connectionSocket.send(cmd.encode())  # 143
     print("Ricerca...")
     global stop_threads
