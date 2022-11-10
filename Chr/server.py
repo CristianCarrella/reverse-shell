@@ -118,12 +118,29 @@ def searchFile(connectionSocket, fileName):
     return output
 
 
-def recentFiles(connectionSocket):
+def recentFiles(connectionSocket: socket):
+
     pSize = int(connectionSocket.recv(1024).decode())
     mex = "Server pronto a ricevere l'output"
     connectionSocket.send(mex.encode())
-    output = connectionSocket.recv(pSize).decode()
-    print(output)
+
+
+    #output = connectionSocket.recv(pSize)
+
+
+    #idea @fede
+    output: bytes
+    output = connectionSocket.recv(1024)
+    pSize -= 1024
+    while pSize >= 1024:
+        print("\n\npsize =")
+        print(pSize)
+        output = output.__add__(connectionSocket.recv(1024))
+        #print(connectionSocket.recv(1024).decode())
+        pSize -= 1024
+        print(". . .")
+
+    print(output.decode())
     return
 
 
