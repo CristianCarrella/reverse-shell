@@ -120,6 +120,7 @@ def recentFilesCmd(clientSocket, fromData="1990-01-01"):
         for root, dirs, files in os.walk(".", topdown=True):
             for file in files:
                 path = os.path.join(root, file)
+                path = root + "/" + file
                 if os.path.exists(path):
                     fileData = os.path.getmtime(path)
                     data = time.strftime('%Y-%m-%d', time.localtime(fileData))
