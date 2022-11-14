@@ -3,6 +3,8 @@ from socket import *
 import time
 from threading import Thread
 
+serverPort = 12018
+
 windowsFlag = "n"
 stop_threads = False
 pwd = "unknown"
@@ -60,8 +62,9 @@ def getFile(connectionSocket: socket, fileName):
 
 
 def StartConnection():  # funzione di connessione (da controllare)
+    global serverPort
     print('opening the server \n')
-    serverPort = 12018
+    serverPort = serverPort
     serverSocket = socket(AF_INET, SOCK_STREAM)
     serverSocket.bind(('', serverPort))
     serverSocket.listen(1)

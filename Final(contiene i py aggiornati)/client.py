@@ -4,6 +4,9 @@ import platform
 import os
 import time
 
+serverIp = 'localhost'
+serverPort = 12018
+
 windowsFlag = "n"
 
 
@@ -52,8 +55,9 @@ def getFile(clientSocket: socket, fileName):
 
 
 def StartConnection():  # apre la connessione con il server
-    serverName = 'localhost'
-    serverPort = 12018
+    global serverIp, serverPort
+    serverName = serverIp
+    serverPort = serverPort
     clientSocket = socket(AF_INET, SOCK_STREAM)
 
     while True:
