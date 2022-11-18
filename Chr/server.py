@@ -106,22 +106,36 @@ def searchFile(connectionSocket, fileName):
     stop_threads = False
     t = Thread(target=animation)
     t.start()
-    output = longRecv(connectionSocket) # 92 or 99
+    output = longRecv(connectionSocket)
+    print(output)
     stop_threads = True
     LogOnFile("ricercaFile.txt", output)
 
 
-def longRecv(connectionSocket):
-    numofpackets = int(connectionSocket.recv(1024).decode())
-    output = ""
+#def longRecv(connectionSocket):
+#    numofpackets = int(connectionSocket.recv(1024).decode())
+#    output = ""
 
-    while numofpackets > 0:
-        data = connectionSocket.recv(1024)
-        output += data.decode()
-        numofpackets = numofpackets - 1
+#    while numofpackets > 0:
+#        data = connectionSocket.recv(1024)
+#        output += data.decode()
+#        numofpackets = numofpackets - 1
 
-    print(output)
-    return output
+#    print(output)
+#    return output
+
+def longRecv(socket: socket):
+    ln = socket.recv(1024).decode()
+    print(ln)
+    lung = int(ln)
+    socket.send("hello".encode())
+    result: bytes
+    result = socket.recv(1024)
+    for i in range(1, lung):
+        print(i)
+        result = result.__add__(socket.recv(1024))
+
+    return result.decode()
 
 
 def recentFiles(connectionSocket: socket):

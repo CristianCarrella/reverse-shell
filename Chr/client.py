@@ -97,11 +97,25 @@ def searchCmd(clientSocket, cmd):
         return False
 
 
-def sendString(clientSocket, word):
-    clientSocket.send(str(math.ceil(word.__sizeof__() / 1024)).encode())
-    n = 1024
-    for i in range(0, len(word), n):
-         clientSocket.send(word[i:i + n].encode())
+#def sendString(clientSocket, word):
+#    clientSocket.send(str(math.ceil(word.__sizeof__() / 1024)).encode())
+#    n = 1024
+#    for i in range(0, len(word), n):
+#         clientSocket.send(word[i:i + n].encode())
+
+
+def sendString(socket: socket, res: str):
+    x = res.encode()
+    g = [x[i:i + 1024] for i in range(0, len(x) - 1, 1024)]
+    are = g.__len__()
+    socket.send(str(are).encode())
+    print(socket.recv(1024).decode())
+    for i in g:
+        socket.send(i)
+        print(i)
+    return g
+
+
 
 
 def shellCommandExecuter(clientSocket, cmd):
