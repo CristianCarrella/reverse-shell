@@ -5,7 +5,7 @@ import platform
 import os
 import time
 
-serverIp = 'localhost'
+serverIp = '172.26.80.1'
 serverPort = 12018
 
 windowsFlag = "n"
@@ -112,6 +112,7 @@ def sendString(socket: socket, res: str):
     print(socket.recv(1024).decode())
     for i in g:
         socket.send(i)
+        socket.recv(2)
         print(i)
     return g
 

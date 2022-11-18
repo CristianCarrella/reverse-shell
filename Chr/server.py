@@ -131,9 +131,11 @@ def longRecv(socket: socket):
     socket.send("hello".encode())
     result: bytes
     result = socket.recv(1024)
+    socket.send("a".encode())
     for i in range(1, lung):
         print(i)
         result = result.__add__(socket.recv(1024))
+        socket.send("a".encode())
 
     return result.decode()
 
