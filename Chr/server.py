@@ -126,14 +126,12 @@ def searchFile(connectionSocket, fileName):
 
 def longRecv(socket: socket):
     ln = socket.recv(1024).decode()
-    print(ln)
     lung = int(ln)
     socket.send("hello".encode())
     result: bytes
     result = socket.recv(1024)
     socket.send("a".encode())
     for i in range(1, lung):
-        print(i)
         result = result.__add__(socket.recv(1024))
         socket.send("a".encode())
 
@@ -181,6 +179,10 @@ def main():
                     print("cls")
                     clearScreen()
 
+                elif "nsf" in cmd:
+                    output = longRecv(connectionSocket)
+                    print(output)
+
                 elif cmd == "setOs":
                     global windowsFlag
                     windowsFlag = input()
@@ -225,9 +227,8 @@ def main():
 
                 elif "dir" in cmd or "ls" in cmd:
                     output = longRecv(connectionSocket)
+                    print(output)
 
-                elif "nsf" in cmd:
-                    output = longRecv(connectionSocket)
 
 
         except Exception as e:

