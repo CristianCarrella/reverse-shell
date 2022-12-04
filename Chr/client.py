@@ -111,13 +111,14 @@ def sendString(socket: socket, res: str):
 
 def sendOsInfo(clientSocket: socket):  # funzione che invia informazioni di sistema
     pack = "\n\n##################################################################################"
-    pack = pack + "Architecture: " + platform.architecture()[
+    pack = pack + "\nArchitecture: " + platform.architecture()[
         0] + "\nMacchine: " + platform.machine() + "\nSystem name: " + platform.system()
     pack = pack + "\nOperating system release: " + platform.release() + "\nOperating system version: " + \
            platform.version() + "\nNode: " + platform.node() + "\nPlatform: " + platform.platform() + "\nProcessor: " + platform.processor()
     
-    pack = pack + infoCpu()
-    pack = pack + infoMem()
+    if windowsFlag == "u":
+        pack = pack + infoCpu()
+        pack = pack + infoMem()
     sendString(clientSocket, pack)
 
 def infoCpu():
