@@ -1,0 +1,28 @@
+1. Descrizione della botnet -> reverse shell -> bot / botmaster
+2. 	2.1 Report Prova: Problema
+	2.2 Report Prova: Crash Rete
+	2.3 Report Prova: InfoOs2, .profile, .myPWD e alcuni RF e alcune search + 1 screen
+	2.4 Report Prova: Riavvio client 1 dal prof, raccolta infoOs2 => conclusione due macchine con lo stesso OS
+	2.5 Report Prova: Pacchetti
+3. Analisi pacchetti Wireshark
+
+
+Abbiamo configurato la macchina con l'IP statico fornitoci dal professore, nonostante ciò per i primi 40 minuti il computer non era visibile dalla rete anche attraverso comandi di ping eseguito su macchine diverse connesse alla stessa rete, a seguito di ciò abbiamo deciso di cambiare computer su cui far girare il "botMaster.py" configurando nuovamente (e nello stesso modo) gli ip statici. 
+
+[Screen connesso]
+
+A questo punto, avviando il bot master, grazie all'implementazione del sistema di connessione del bot - descritta precedentemente - riusciamo a stabilire la connessione con il client. Dopo qualche comando di prova decidiamo di lanciare:
+- un comando "search" sulla directory "/home/alessio" per avere un'idea veloce dei file presenti a partire dalla home;
+- un comando "infoOs" per recuperare i dati relativi alla macchina e al OS; 
+Di seguito riportiamo l'output ottenuto: [INSERISCI INFOOS1.txt]
+- qualche comando di navigazione nel FS (e.g. cd, ls, nsf ls -l -a...)
+
+Durante la ricerca dei file nascosti la rete è crashata, ciò ha compromesso il funzionamento del bot sulla macchina "192.168.1.188". Evidentemente il bot è rimasto in attesa su una recv(). L'errore fatale è stato chiudere il botMaster, poichè se non fosse stato terminato la connessione si sarebbe ristabilita al ripristino dall'access point senza causare malfunzionamenti (così come emerso dalle prove effettuate in seguito). 
+
+All'avvio della macchina "192.168.1.224" siamo riusciti a connetterci senza problemi. Abbiamo provato ad usare la strategia della ricerca dei file più recenti utilizzando il comando "rf 2022-12-13" sulla directory "/home/alessio/" da questo abbiamo individuato alcuni files interessanti come: ".myPwd" (contenente "SBAGLIATO! VEDI ALTROVE"), ".profile"[screen profile]
+[screen RF] 
+
+Analizzando le specifiche raccolte abbiamo notato che i due computer sui quali giravano i bot erano estremamente simili infatti le uniche informazioni che differivano erano i dati di memoria libera/allocata.
+
+
+
